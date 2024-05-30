@@ -6,8 +6,10 @@ public class PlayerController : MonoBehaviour
     [Header("Movement")]
     public float moveSpeed;
     private Vector2 curMovementInput;
-    public float jumptForce;
+    public float jumpForce;
+    public float jumpBarForce;
     public LayerMask groundLayerMask;
+    public LayerMask jumpBarLayerMask;
 
     [Header("Look")]
     public Transform cameraContainer;
@@ -65,9 +67,16 @@ public class PlayerController : MonoBehaviour
 
     public void OnJumpInput(InputAction.CallbackContext context)
     {
-        if (context.phase == InputActionPhase.Started && IsGrounded())
+        if (context.phase == InputActionPhase.Started)
         {
-            rigidbody.AddForce(Vector2.up * jumptForce, ForceMode.Impulse);
+            if (IsGrounded())
+            {
+                rigidbody.AddForce(Vector2.up * jumpForce, ForceMode.Impulse);
+            }
+            else if (IsJumpBar())
+            {
+                rigidbody.AddForce(Vector2.up * jumpBarForce, ForceMode.Impulse);
+            }
         }
     }
 
@@ -102,6 +111,27 @@ public class PlayerController : MonoBehaviour
         for (int i = 0; i < rays.Length; i++)
         {
             if (Physics.Raycast(rays[i], 0.1f, groundLayerMask))
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    bool IsJumpBar()
+    {
+        Ray[] rays = new Ray[4]
+        {
+            new Ray(transform.position + (transform.forward * 0.2f) + (transform.up * 0.01f), Vector3.down),
+            new Ray(transform.position + (-transform.forward * 0.2f) + (transform.up * 0.01f), Vector3.down),
+            new Ray(transform.position + (transform.right * 0.2f) + (transform.up * 0.01f), Vector3.down),
+            new Ray(transform.position + (-transform.right * 0.2f) +(transform.up * 0.01f), Vector3.down)
+        };
+
+        for (int i = 0; i < rays.Length; i++)
+        {
+            if (Physics.Raycast(rays[i], 0.1f, jumpBarLayerMask))
             {
                 return true;
             }
