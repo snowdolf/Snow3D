@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -22,6 +23,8 @@ public class PlayerController : MonoBehaviour
 
     [HideInInspector]
     public bool canLook = true;
+
+    public Action inventory;
 
     private Rigidbody rigidbody;
 
@@ -115,8 +118,9 @@ public class PlayerController : MonoBehaviour
         return false;
     }
 
-    public void ToggleCursor(bool toggle)
+    public void ToggleCursor()
     {
+        bool toggle = Cursor.lockState == CursorLockMode.Locked;
         Cursor.lockState = toggle ? CursorLockMode.None : CursorLockMode.Locked;
         canLook = !toggle;
     }
@@ -124,5 +128,14 @@ public class PlayerController : MonoBehaviour
     public void OnJumpBar()
     {
         rigidbody.AddForce(Vector2.up * jumpBarForce, ForceMode.Impulse);
+    }
+
+    public void OnInventory(InputAction.CallbackContext context)
+    {
+        if(context.phase == InputActionPhase.Started)
+        {
+            inventory?.Invoke();
+            ToggleCursor();
+        }
     }
 }
